@@ -81,6 +81,7 @@
 
 				 fixed3 halfDir = normalize(tangentLightDir + tangentViewDir);
 
+				 //取出遮罩纹理的R分量做高光掩码
 				 fixed specularMask = tex2D(_SpecularMask, i.uv).r * _SpecularScale;
 
 				 fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0, dot(tangentNormal, halfDir)), _Gloss) * specularMask;
