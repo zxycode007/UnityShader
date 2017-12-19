@@ -8,6 +8,7 @@
 		
 		Pass 
 		{
+		Tags { "LightMode"="ForwardBase" }
 
 		CGPROGRAM
 		   

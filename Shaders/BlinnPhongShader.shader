@@ -5,11 +5,12 @@
 		_Gloss("Gloss", Range(0,256)) = 20
 	}
 	SubShader {
-		Tags { "RenderType"="Opaque" }
+		Tags {  "RenderType"="Opaque" }
 		LOD 200
 		
 		Pass
 		{
+		 Tags { "LightMode"="ForwardBase" }
 		  CGPROGRAM
 
 		    #include "Lighting.cginc"

@@ -10,6 +10,8 @@
 		Pass 
 		{
 
+		Tags { "LightMode"="ForwardBase" }
+
 		CGPROGRAM
 		   
 		   #include "Lighting.cginc"

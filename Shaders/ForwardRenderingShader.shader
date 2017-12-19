@@ -1,8 +1,15 @@
-﻿Shader "Custom/ForwardRenderingShader" {
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+// Upgrade NOTE: replaced '_LightMatrix0' with 'unity_WorldToLight'
+
+// Upgrade NOTE: replaced '_LightMatrix0' with 'unity_WorldToLight'
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/ForwardRenderingShader" {
 	Properties {
-		_DiffuseColor ("DiffuseColor", Color) = (1,1,1,1)
-		_SpecularColor("SpecularColor", Color) = (1,1,1,1)
-		_Gloss("Gloss", Range(0,256)) = 20
+		_Diffuse ("Diffuse", Color) = (1, 1, 1, 1)
+		_Specular ("Specular", Color) = (1, 1, 1, 1)
+		_Gloss ("Gloss", Range(8.0, 256)) = 20
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }
@@ -14,7 +21,7 @@
 		Pass
 		{
 		  //使用前向渲染
-		  Tags {"LightMode"="ForwardLBase"}
+		  Tags {"LightMode"="ForwardBase"}
 		  CGPROGRAM
 
 		   //这个	条件编译保证在Shader中使用的光照衰减变量可以正确被赋值
@@ -25,8 +32,8 @@
 		   #pragma vertex vert
 		   #pragma fragment  frag
 		  
-		   fixed4 _DiffuseColor;
-		   fixed4 _SpecularColor;
+		   fixed4 _Diffuse;
+		   fixed4 _Specular;
 		   float  _Gloss;
 
 		   struct a2v
@@ -46,10 +53,10 @@
 		   {
 		        v2f o;
 				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-				//世界法线方向
+				
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
-				//世界位置
-				o.worldPos = mul(_Object2World, v.vertex).xyz;
+				
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				
 				return o;
 
@@ -57,10 +64,9 @@
 
 		   fixed4 frag(v2f i) : SV_Target 
 		   {
-		        //在像素着色器中计算光照
 				fixed3 worldNormal = normalize(i.worldNormal);
 				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
-				//环境光在ForwardBase里计算
+				
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
 				
 			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
@@ -118,7 +124,7 @@
 				
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				
-				o.worldPos = mul(_Object2World, v.vertex).xyz;
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				
 				return o;
 			}
@@ -144,12 +150,12 @@
 					#if defined (POINT)
 					    //点光源衰减根据距离来
 						//_LightMatrix0世界空间到光源空间的变换矩阵
-				        float3 lightCoord = mul(_LightMatrix0, float4(i.worldPos, 1)).xyz;   //光源坐标
+				        float3 lightCoord = mul(unity_WorldToLight, float4(i.worldPos, 1)).xyz;   //光源坐标
 						//用数学计算衰减消耗性能过大，这里使用一张纹理做查找表,来取得衰减值
 				        fixed atten = tex2D(_LightTexture0, dot(lightCoord, lightCoord).rr).UNITY_ATTEN_CHANNEL;
 				    #elif defined (SPOT)
 					    //聚光灯衰减
-				        float4 lightCoord = mul(_LightMatrix0, float4(i.worldPos, 1));
+				        float4 lightCoord = mul(unity_WorldToLight, float4(i.worldPos, 1));
 				        fixed atten = (lightCoord.z > 0) * tex2D(_LightTexture0, lightCoord.xy / lightCoord.w + 0.5).w * tex2D(_LightTextureB0, dot(lightCoord, lightCoord).rr).UNITY_ATTEN_CHANNEL;
 				    #else
 				        fixed atten = 1.0;
