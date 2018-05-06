@@ -7,11 +7,15 @@
 // Upgrade NOTE: replaced '_LightMatrix0' with 'unity_WorldToLight'
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Custom/ForwardRenderingShader" {
+Shader "Custom/GradientShader" {
 	Properties {
 		_Diffuse ("Diffuse", Color) = (1, 1, 1, 1)
+		_MainTex ("Texture", 2D) = "white"{}
 		_Specular ("Specular", Color) = (1, 1, 1, 1)
 		_Gloss ("Gloss", Range(8.0, 256)) = 20
+		_FogColor ("FogColor", Color) = (1,1,1,1)
+		_FogStart ("FogStart", float) = 0
+		_FogEnd ("FogEnd", float) = 0
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }
@@ -37,11 +41,17 @@ Shader "Custom/ForwardRenderingShader" {
 		   fixed4 _Diffuse;
 		   fixed4 _Specular;
 		   float  _Gloss;
+           fixed4 _FogColor;
+		   half _FogStart;
+		   half _FogEnd;
+		   sampler2D _MainTex;
+		   float4 _MainTex_ST;
 
 		   struct a2v
 		   { 
 		       fixed4 vertex : POSITION;
 			   fixed3 normal : NORMAL;
+			   float2 texcoord :TEXCOORD0;
 		   };
 
 		   struct v2f
@@ -49,6 +59,8 @@ Shader "Custom/ForwardRenderingShader" {
 		       fixed4 pos :SV_POSITION;
 			   float3 worldNormal : TEXCOORD0;
 			   float3 worldPos : TEXCOORD1;
+			   float2 uv:TEXCOORD2;
+			   half   fog :TEXCOORD3;
 		   };
 
 		   v2f vert(a2v v)
@@ -60,6 +72,10 @@ Shader "Custom/ForwardRenderingShader" {
 				
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				
+				o.uv = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+
+				o.fog = saturate((_FogStart- o.pos.y)/(_FogStart-_FogEnd));
+
 				return o;
 
 		   }
@@ -68,10 +84,10 @@ Shader "Custom/ForwardRenderingShader" {
 		   {
 				fixed3 worldNormal = normalize(i.worldNormal);
 				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
-				
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-				
-			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
+				fixed3 albedo = tex2D(_MainTex, i.uv).rgb;
+				albedo = lerp(albedo.rgb ,_FogColor, i.fog);
+			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * albedo * max(0, dot(worldNormal, worldLightDir));
 
 			 	fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
 			 	fixed3 halfDir = normalize(worldLightDir + viewDir);
@@ -108,16 +124,24 @@ Shader "Custom/ForwardRenderingShader" {
 			fixed4 _Diffuse;
 			fixed4 _Specular;
 			float _Gloss;
+			fixed4 _FogColor;
+		    half _FogStart;
+		    half _FogEnd;
+		    sampler2D _MainTex;
+		    float4 _MainTex_ST;
 			
 			struct a2v {
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
+				float2 texcoord :TEXCOORD0;
 			};
 			
 			struct v2f {
 				float4 pos : SV_POSITION;
 				float3 worldNormal : TEXCOORD0;
 				float3 worldPos : TEXCOORD1;
+				float2 uv:TEXCOORD2;
+			    half   fog :TEXCOORD3;
 			};
 			
 			v2f vert(a2v v) {
@@ -127,20 +151,26 @@ Shader "Custom/ForwardRenderingShader" {
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+
+				o.uv = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+
+				o.fog = saturate((_FogStart- o.pos.y)/(_FogStart-_FogEnd));
 				
 				return o;
 			}
 			
 			fixed4 frag(v2f i) : SV_Target {
 				fixed3 worldNormal = normalize(i.worldNormal);
-				//判断是光源是否平行光
+				//判断是光源是否平行光,计算世界空间的光照方向
 				#ifdef USING_DIRECTIONAL_LIGHT
 					fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
 				#else
 					fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz - i.worldPos.xyz);
 				#endif
 				
-				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
+				fixed3 albedo = tex2D(_MainTex, i.uv).rgb;
+				albedo = lerp(albedo.rgb ,_FogColor, i.fog);
+				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * albedo * max(0, dot(worldNormal, worldLightDir));
 				
 				fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
 				fixed3 halfDir = normalize(worldLightDir + viewDir);

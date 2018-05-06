@@ -1,4 +1,6 @@
-﻿Shader "Custom/MaskShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/MaskShader" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("MainTex (RGB)", 2D) = "white" {}
@@ -52,7 +54,7 @@
 			 v2f vert(a2v v)
 			 {
 			     v2f o;
-				 o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				 o.pos = UnityObjectToClipPos(v.vertex);
 
 				 o.uv.xy  = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
 

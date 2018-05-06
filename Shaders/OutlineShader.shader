@@ -1,4 +1,6 @@
-﻿Shader "Custom/OutlineShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/OutlineShader" {
 	Properties {
 		_OutlineColor ("Color", Color) = (1,1,1,1)
 		_MainTex ("MainTex (RGB)", 2D) = "white" {}
@@ -43,7 +45,7 @@
 			     ver2Frag v2f;
 				 v2f.vertex = i.vertex;
 				 v2f.vertex += normalize(i.normal)*_OutlineSize ;
-				 v2f.vertex = mul(UNITY_MATRIX_MVP, v2f.vertex);
+				 v2f.vertex = UnityObjectToClipPos(v2f.vertex);
 				 v2f.normal = i.normal;
 				 v2f.uv = i.uv;
 
@@ -88,7 +90,7 @@
 			 {
 			     ver2Frag v2f;
 				 v2f.vertex = i.vertex;
-				 v2f.vertex = mul(UNITY_MATRIX_MVP, v2f.vertex);
+				 v2f.vertex = UnityObjectToClipPos(v2f.vertex);
 				 v2f.normal = i.normal;
 				 v2f.uv = i.uv;
 

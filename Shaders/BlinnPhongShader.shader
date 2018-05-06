@@ -1,4 +1,6 @@
-﻿Shader "Custom/BlinnPhongShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/BlinnPhongShader" {
 	Properties {
 		_DiffuseColor ("DiffuseColor", Color) = (1,1,1,1)
 		_SpecularColor("SpecularColor", Color) = (1,1,1,1)
@@ -37,7 +39,7 @@
 		   v2f vert(a2v v)
 		   {
 		       v2f o;
-			   o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+			   o.pos = UnityObjectToClipPos(v.vertex);
 
 			   fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
 

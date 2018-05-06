@@ -1,4 +1,6 @@
-﻿Shader "Custom/PerPixelLightShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/PerPixelLightShader" {
 	Properties {
 		_DiffuseColor ("Color", Color) = (1,1,1,1)
 	}
@@ -35,7 +37,7 @@
 		   {
 		      v2f o;
 
-		      o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		      o.pos = UnityObjectToClipPos(v.vertex);
 
 			  fixed3 ambient =  UNITY_LIGHTMODEL_AMBIENT.xyz;  //环境光参数
 

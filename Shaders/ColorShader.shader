@@ -1,4 +1,6 @@
-﻿//Shader名
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+//Shader名
 Shader "Custom/ColorShader" 
 {
     //属性定义 变量名（“面板名称”， 类型) = 预设值
@@ -63,7 +65,7 @@ Shader "Custom/ColorShader"
 				  //对顶点向发现方向偏移
 				  i.vertex.xyz += i.nomal * _NormalScale;
 				  //将顶点投影的视锥剪裁空间中
-				  ov.vertex =  mul(UNITY_MATRIX_MVP,i.vertex);
+				  ov.vertex =  UnityObjectToClipPos(i.vertex);
 				  
 				  
 			      //UNITY_MATRIX_MVP unity的mvp矩阵

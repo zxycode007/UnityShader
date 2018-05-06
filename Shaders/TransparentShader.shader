@@ -1,4 +1,6 @@
-﻿Shader "Custom/TransparentShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/TransparentShader" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
@@ -44,7 +46,7 @@
 				 float  f1 = 0.5;
 				 //v.color = fixed3(f1,0,0);
 				 v.color = f1;
-				 v.vertex = mul(UNITY_MATRIX_MVP,v.vertex);
+				 v.vertex = UnityObjectToClipPos(v.vertex);
 				 return v;
 			 }
 

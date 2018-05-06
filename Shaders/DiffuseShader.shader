@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
 Shader "Custom/DiffuseShader" {
 	Properties {
@@ -36,7 +38,7 @@ Shader "Custom/DiffuseShader" {
 		   {
 		      v2f o;
 
-		      o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		      o.pos = UnityObjectToClipPos(v.vertex);
 
 			  fixed3 ambient =  UNITY_LIGHTMODEL_AMBIENT.xyz;  //环境光参数
 
